@@ -20,5 +20,10 @@ jobs:
       
       - name: Build and push Docker image
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/deel-web-app:latest .
-          docker push ${{ secrets.DOCKER_USERNAME }}/deel-web-app:latest
+          IMAGE_NAME="${{ secrets.DOCKER_USERNAME }}/deel-web-app"
+          COMMIT_SHA=$(echo ${GITHUB_SHA::7})
+          TAG="${IMAGE_NAME}:${COMMIT_SHA}"
+          docker buildx build --push --tag $TAG .
+          docker tag $TAG "${IMAGE_NAME}:latest"
+          docker push $TAG
+          docker push "${IMAGE_NAME}:latest"
